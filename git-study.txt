@@ -60,3 +60,10 @@ git checkout -- LICENSE #其实用版本库的版本替换工作区的版本
  可以还原到最近的一个版本
  会丢失最近一次提交后修改的内容
 
+# 关联远程仓库
+----------------------
+git remote add origin git@github.com:chinaxiaobin/learngit.git  #与远程仓库关联
+git push -u origin master #第一次推送master分支的所有内容，加了-u不但推送到远程仓库而且会把本地的
+			  #master分支和远程的master分支关联起来
+git push origin master #以后使用这个命令推送
+
