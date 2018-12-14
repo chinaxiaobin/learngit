@@ -74,3 +74,14 @@ git branch #查看当前所在的分支
 git checkout master
 git merge dev  #先切换到master，在合并分支
 git branch -d dev #删除分支
+
+#解决冲突
+当master分支和feature1分支修改同一个文件的同一行，且都提交的时候
+git checkout master
+git merge feature1 #此时报冲突
+
+解决冲突：
+手动把Git合并失败的文件手动编辑为我们希望的内容，再提交。
+git add readme.txt
+git commit -m "fix conflict"
+git log --graph --pretty=oneline --abbrev-commit  #图形化查看
