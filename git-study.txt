@@ -1,0 +1,62 @@
+git add file
+git commit -m "xxxx"  
+git diff # 查看修改的地方
+git status #查看状态
+	readme.txt被修改过了，但还没有准备提交的修改
+	将要被提交的修改包括readme.txt，下一步，就可以放心地提交了
+	当前没有需要提交的修改，而且，工作目录是干净的
+
+git log 显示从最近到最远的提交日志
+git log --pretty=oneline   友好显示提交日志
+
+#版本回退
+------------------
+git reset --hard HEAD^  恢复到上一个版本
+git reset --hard HEAD^^ 上上一个版本
+git reset --hard HEAD~100  当前往上100个版本
+
+git reset --hard 10094a  #根据commit id 恢复
+git log #可以查看提交历史，以便确定回退到哪个版本
+git reflog  #查看命令历史，以便确定要回到未来的哪个版本
+
+
+#管理修改
+--------------------
+
+修改文件--git add ---修改文件---git commit
+此时只提交了第一次修改，因为只有第一次修改add到了暂存区，要想把第二次的修改合并到master
+需要再次git add --git commit
+
+查看工作区和暂存区文件的不同：
+git diff HEAD -- readme.txt 
+
+#撤销修改
+--------------------
+1. 当写了一句stupid boss单词在文件中修改了工作区的某个文件的内容，想直接丢弃工作区的内容
+	git checkout -- readme.txt
+
+2. 当修改了工作区的文件的内容，还提交到了暂存区
+    git reset HEAD readme.txt   #撤销暂存区的修改
+    git checkout -- readme.txt  #撤销工作区的修改
+
+3. 已经提交到了版本库，前提没有推送到远程仓库
+    git reset --hard HEAD^  #回退到上一版本
+
+4. 修改了版本库，并已提交推送到远程仓库
+	没办法，肯定会被看见的
+
+
+
+# 删除文件
+--------------------
+rm LICENSE 
+
+1. 确定删除
+git rm LICENSE
+git commit -m "remove LICENSE"
+2. 误删
+git checkout -- LICENSE #其实用版本库的版本替换工作区的版本
+3. 如果该文件没有提交到版本库
+ 可以还原到最近的一个版本
+ 会丢失最近一次提交后修改的内容
+
