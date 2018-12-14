@@ -70,3 +70,7 @@ git push origin master #以后使用这个命令推送
 # 创建于合并分支
 git checkout -b dev # 创建并切换到dev分支
 git branch #查看当前所在的分支
+
+git checkout master
+git merge dev  #先切换到master，在合并分支
+git branch -d dev #删除分支
