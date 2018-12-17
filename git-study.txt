@@ -106,3 +106,23 @@ master分支是稳定的，仅仅用来发布新版本， 干活都在dev分支�
 你和你的小伙伴们每个人都在dev分支上干活，每个人都有自己的分支，时不时地往dev分支上合并就可以了
 
 
+#Bug分支
+有的时候工作进行到一半没法提交，还需要1天才可以完成，但是此时出现bug需要2小时修复，这个时候就需要开启一个新的bug分支，
+用到了git的stash功能，把当前工作现场“储藏”起来，等以后恢复现场
+git checkout dev
+git status #发现有未提交的文件
+git stash #储藏现场
+git checkout master
+git checkout -b issue-101
+git add readme.txt
+git commit -m "fix bug 101"
+git checkout master
+git merge --no-ff -m "merge bug fix 101" issue-101
+git checkout dev
+git status  #此时工作现场是clean的
+git stash list 
+git stash apply(恢复)  /git stash drop (删除stash)
+或
+git stash pop #相当于上面两条命令
+git stash list#此时没有看不到stash任何内容了
+stash是可以多次的，通过git stash list查看， git stash apply stash@{0}去恢复相应的stash
