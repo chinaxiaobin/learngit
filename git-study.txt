@@ -85,3 +85,24 @@ git merge feature1 #此时报冲突
 git add readme.txt
 git commit -m "fix conflict"
 git log --graph --pretty=oneline --abbrev-commit  #图形化查看
+
+#分支合并策略
+默认git合并分支会采用Fast forward模式，但是这种模式删除分支后会丢失分支信息，如果禁用
+fast forward选项 使用--no-ff，这样 merge会生成一个新的commit
+区别：
+--no-ff会在merge的时候生成一个新的commit,而默认不使用该选项则会head有master指向dev，commit id并没有改变
+示例：
+git checkout -b dev
+git add readme.txt
+git commit -m "add merge"
+git checkout master
+git merge --no-ff -m "merge with no-ff" dev
+
+git log --graph --pretty=oneline --addrev-commit
+
+分支策略：
+master分支是稳定的，仅仅用来发布新版本， 干活都在dev分支上，所以dev分支是不稳定的，比如1.0版本发布时，再把dev分支
+合并到master上，在master分支发布1.0版本；
+你和你的小伙伴们每个人都在dev分支上干活，每个人都有自己的分支，时不时地往dev分支上合并就可以了
+
+
