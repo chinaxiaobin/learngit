@@ -126,3 +126,7 @@ git stash apply(恢复)  /git stash drop (删除stash)
 git stash pop #相当于上面两条命令
 git stash list#此时没有看不到stash任何内容了
 stash是可以多次的，通过git stash list查看， git stash apply stash@{0}去恢复相应的stash
+# git revert 删除撤销某次commit,此次操作会作为一次新的commit 提交，同时不会影响之前的commit记录
+git revert HEAD 撤销前一次commit
+git revert HEAD^ 撤销前前一次 commit
+git revert commit_id 撤销指定版本
