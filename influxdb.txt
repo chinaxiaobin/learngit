@@ -1,0 +1,244 @@
+******************* 一、ubuntu14.04 安装配置influxDB
+
+# 官网：
+https://docs.influxdata.com/influxdb/v0.9/introduction/installation/
+  中文官网
+https://jasper-zhang1.gitbooks.io/influxdb/content/Introduction/getting_start.html
+ 优秀博客
+ https://www.linuxdaxue.com/noun-interpretation-of-influxdb.html
+
+###安装ubuntu aliyun仓库源
+
+cp /etc/apt/sources.list /etc/apt/sources.list.bak 
+vim /etc/apt/sources.list
+
+deb http://mirrors.cloud.aliyuncs.com/ubuntu/ trusty main restricted universe multiverse
+deb http://mirrors.cloud.aliyuncs.com/ubuntu/ trusty-security main restricted universe multiverse
+deb http://mirrors.cloud.aliyuncs.com/ubuntu/ trusty-updates main restricted universe multiverse
+deb http://mirrors.cloud.aliyuncs.com/ubuntu/ trusty-proposed main restricted universe multiverse
+deb http://mirrors.cloud.aliyuncs.com/ubuntu/ trusty-backports main restricted universe multiverse
+deb-src http://mirrors.cloud.aliyuncs.com/ubuntu/ trusty main restricted universe multiverse
+deb-src http://mirrors.cloud.aliyuncs.com/ubuntu/ trusty-security main restricted universe multiverse
+deb-src http://mirrors.cloud.aliyuncs.com/ubuntu/ trusty-updates main restricted universe multiverse
+deb-src http://mirrors.cloud.aliyuncs.com/ubuntu/ trusty-proposed main restricted universe multiverse
+deb-src http://mirrors.cloud.aliyuncs.com/ubuntu/ trusty-backports main restricted universe multiverse
+
+deb http://mirrors.aliyun.com/ubuntu/ trusty main restricted universe multiverse
+deb http://mirrors.aliyun.com/ubuntu/ trusty-security main restricted universe multiverse
+deb http://mirrors.aliyun.com/ubuntu/ trusty-updates main restricted universe multiverse
+deb http://mirrors.aliyun.com/ubuntu/ trusty-proposed main restricted universe multiverse
+deb http://mirrors.aliyun.com/ubuntu/ trusty-backports main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ trusty main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ trusty-security main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ trusty-updates main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ trusty-proposed main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ trusty-backports main restricted universe multiverse
+deb http://archive.ubuntu.com/ubuntu trusty universe
+# deb-src http://archive.ubuntu.com/ubuntu trusty universe
+
+
+sudo apt-get update 
+
+
+##########################
+
+
+当你的数据和时间有关，就可以尝试InfluxDB
+
+
+##对于 Ubuntu用户可以通过如下命令添加 InfluxData repository
+
+curl -sL https://repos.influxdata.com/influxdb.key | sudo apt-key add -
+source /etc/lsb-release
+echo "deb https://repos.influxdata.com/${DISTRIB_ID,,} ${DISTRIB_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/influxdb.list
+
+
+
+sudo apt-get update && sudo apt-get install influxdb
+sudo service influxdb start
+
+
+##
+ss -tunl  
+观察 8086 8088端口是否启动
+
+
+
+influx -precision rfc3339
+
+
+############ 
+
+简单介绍：
+measurement (表): 主键 索引总是时间戳
+tag 列 ：被索引起来的
+field 列： 没有被索引起来
+
+
+**********************二、 Influxdb 开启登录认证
+简单实用influxdb
+
+influx --help #查看influx客户端实用帮助
+influx #默认链接localhost:8086 
+show users #查看所有用户，默认没有
+
+influx -precision rfc3339  连接
+
+
+开启认证：
+
+1. influx 
+   CREATE USER libin with PASSWORD '123' WITH ALL PRIVILEGES  #注意是单引号
+
+2. vim /etc/influxdb/influxdb.conf
+	auth-enabled = true 
+3. service influx restart  
+   此时influx 登录进去后 show database就会报错
+
+4. influx -username libin -password 123
+
+   influx -username libin -password '' #此时密码隐藏登录
+
+
+
+***************************** 三、influxdb基本操作
+
+### 查看版本
+influx -version 
+
+### 操作方式
+1. influx 客户端命令行方式
+2. HTTP API 接口
+3. 各语音API库
+
+######库操作：
+create database mydb #创建库
+drop database mydb  #删除库
+
+#######表操作：
+use mydb
+show measurements #显示所有表
+
+#创建表
+insert disk_free,hostname=serverA value=442221834230  1435362189575692182
+注意： 新建表只能以创建数据的方式创建表，disk_free 就是表名，hostname是索引，value=xx是记录值，记录值可以有多个，最后是指定的时间
+不指定时间，默认以当前时间为时间索引
+
+#查看表
+select * from disk_free 
+
+#删除表
+drop measurement disk_free 
+show measurements
+
+
+#######数据操作
+
+1. 增加数据
+insert disk_free,hostname=serverA value=442221834230  1435362189575692182
+
+2）查询数据
+
+查询语句与SQL一样，在此不再赘述。
+
+3）修改和删除数据
+
+InfluxDB属于时序数据库，没有提供修改和删除数据的方法。
+
+但是删除可以通过InfluxDB的数据保存策略（Retention Policies）来实现，这个会在以后的文章中讲到。
+
+
+************************ InfluxDB 的HTTP API 写入操作
+
+HTTP API两种操作：
+   写入
+   查询
+
+ https://www.linuxdaxue.com/influxdb-write-data-by-http-api.html
+
+
+
+***************************四、InfluxDB数据保留策略（Retention Policies
+
+InfluxDB每秒可以处理成千上万条数据，要将这些数据全部保存下来会占用大量的存储空间，有时我们可能并不需要将所有历史数据进行存储，因此，InfluxDB推出了数据保留策略（Retention Policies），用来让我们自定义数据的保留时间
+
+1、InfluxDB 数据保留策略 说明
+InfluxDB的数据保留策略（RP） 用来定义数据在InfluxDB中存放的时间，或者定义保存某个期间的数据。
+
+一个数据库可以有多个保留策略，但每个策略必须是独一无二的。
+
+2、InfluxDB 数据保留策略 目的
+InfluxDB本身不提供数据的删除操作，因此用来控制数据量的方式就是定义数据保留策略。
+
+因此定义数据保留策略的目的是让InfluxDB能够知道可以丢弃哪些数据，从而更高效的处理数据。
+
+3. influxdb 数据保留策略
+
+- 查询策略
+查看数据库的现有策略
+
+SHOW RETENTION POLICIES ON mydb
+
+name    duration    shardGroupDuration    replicaN    default
+default    0        168h0m0s        1        true
+
+
+name--名称，此示例名称为 default
+
+duration--持续时间，0代表无限制
+
+shardGroupDuration--shardGroup的存储时间，shardGroup是InfluxDB的一个基本储存结构，应该大于这个时间的数据在查询效率上应该有所降低。
+
+replicaN--全称是REPLICATION，副本个数
+
+default--是否是默认策略
+
+- 新建策略
+
+> CREATE RETENTION POLICY "2_hours" ON "telegraf" DURATION 2h REPLICATION 1 DEFAULT
+> SHOW RETENTION POLICIES ON telegraf
+name    duration    shardGroupDuration    replicaN    default
+default    0        168h0m0s        1        false
+2_hours    2h0m0s        1h0m0s            1        true
+
+通过上面的语句可以添加策略，本例在 telegraf 库添加了一个2小时的策略，名字叫做 2_hours， duration为2小时，副本为1，设置为默认策略。
+
+因为名为default的策略不再是默认策略，因此，在查询使用default策略的表时要显式的加上策略名 “default”。
+
+> select * from "default".cpu limit 2
+name: cpu
+---------
+time            cpu        host                host_id    usage_guest    usage_guest_nice    usage_idle   usage_iowait        usage_irq    usage_nice        usage_softirq    usage_steal    usage_system        usage_user
+1467884670000000000    cpu-total    ResourcePool-0246-billing07        0        0            99.79994164175388    0            0        0.06251823446523729    0        0        0.12920435125646068    0.008335764603451727
+1467884670000000000    cpu9        billing07                0        0            97.79338014069532    1.8054162487519367    0        0            0        0        0.10030090272883943    0.3009027081135398
+
+
+3. 修改策略
+
+
+> ALTER RETENTION POLICY "2_hours" ON "telegraf" DURATION 4h DEFAULT
+> show retention POLICIES on telegraf
+name    duration    shardGroupDuration    replicaN    default
+default    0        168h0m0s        1        false
+2_hours    4h0m0s        1h0m0s            1        true
+
+4. 删除策略
+
+> drop retention POLICY "2_hours" ON "telegraf"
+> show retention POLICIES on telegraf
+name    duration    shardGroupDuration    replicaN    default
+default    0        168h0m0s        1        false
+可以看到，名为2_hours的策略已经被删除了。
+
+其他说明
+策略这个关键词“POLICY”在使用是应该大写，小写应该会出粗。
+
+当一个表使用的策略不是默认策略时，在进行操作时一定要显式的指定策略名称，否则会出现错误。
+
+
+
+
+
+
+
+
