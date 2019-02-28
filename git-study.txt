@@ -138,3 +138,21 @@ git revert commit_id 撤销指定版本
 # 查看远程和本地分支
 git branch #查看本地分支
 git branch -a #查看远程和本地分支，*表示当前目录所在的分支
+
+
+git status 
+git add -u 只添加修改的 可以多次使用
+git push origin HEAD  提交到对应的远程分支
+
+#问题
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+        .DS_Store
+
+vim  .gitignore  # 要养成一开始就设置好.gitignore文件的习惯，忽略掉对某些不需要追踪文件的追踪。
+.DS_Store
+
+git add .
+git commit -m “add ”
+git push 
